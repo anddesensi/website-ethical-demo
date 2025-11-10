@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ethics Matrix Dashboard - Preview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/recharts@2.5.0/dist/Recharts.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+        
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        .glass-button {
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .glass-button:hover {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: rgba(0, 0, 0, 0.4);
+        }
+        
+        .glass-button.selected {
+            background: black;
+            color: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .question-card {
+            background: rgba(0, 0, 0, 0.01);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .question-card:hover {
+            background: rgba(0, 0, 0, 0.02);
+        }
+        
+        .chart-box {
+            background: rgba(0, 0, 0, 0.01);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-white text-black min-h-screen overflow-x-hidden">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-black/10">
+        <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+            <h1 class="text-3xl font-light tracking-tight">Ethics Matrix</h1>
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" class="sr-only peer" checked>
+                        <div class="w-11 h-6 bg-black/5 peer-focus:outline-none rounded-full peer border border-black/20 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-black after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black/10"></div>
+                    </label>
+                    <span class="text-sm font-light">Guides</span>
+                </div>
+                <button class="glass-button rounded-xl px-4 py-2 text-sm font-light">
+                    Reset
+                </button>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 py-10 grid gap-12 lg:grid-cols-[1fr_450px]">
+        <!-- Questions Panel -->
+        <div>
+            <div class="mb-8">
+                <h2 class="text-xl font-light mb-2">Assessment</h2>
+                <p class="text-sm text-black/60">0/24 answered · 0%</p>
+            </div>
+            
+            <div class="space-y-6">
+                <!-- Sample Question 1 -->
+                <div class="question-card rounded-2xl p-5">
+                    <p class="font-light text-black/90 text-sm mb-3 px-3">
+                        1. It is acceptable to conceal information temporarily if doing so serves a greater humanitarian purpose.
+                    </p>
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                        <button class="glass-button rounded-xl px-3 py-2.5 text-xs sm:text-sm text-center font-light">
+                            Strongly Disagree
+                        </button>
+                        <button class="glass-button rounded-xl px-3 py-2.5 text-xs sm:text-sm text-center font-light">
+                            Disagree
+                        </button>
+                        <button class="glass-button rounded-xl px-3 py-2.5 text-xs sm:text-sm text-center font-light">
+                            Neutral
+                        </button>
+                        <button class="glass-button selected rounded-xl px-3 py-2.5 text-xs sm:text-sm text-center font-light">
+                            Agree
+                        </button>
+                        <button class="glass-button rounded-xl px-3 py-2.5 text-xs sm:text-sm text-center font-light">
+                            Strongly Agree
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Sample Question 2 -->
+                <div class="question-card rounded-2xl p-5">
+                    <p class="font-light text-white/90 text-sm mb-4 px-3">
+                        2. Scientific truth should never be compromised, even to accelerate innovation or attract investment.
+                    </p>
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                        <button class="glass-button rounded-xl px-3 py-2.5 text-xs sm:text-sm text-center font-light">
+                            Strongly Disagree
+                        </button>
+                        <button class="glass-button rounded-xl px-3 py-2.5 text-xs sm:text-sm text-center font-light">
+                            Disagree
+                        </button>
+                        <button class="glass-button rounded-xl px-3 py-2.5 text-xs sm:text-sm text-center font-light">
+                            Neutral
+                        </button>
+                        <button class="glass-button rounded-xl px-3 py-2.5 text-xs sm:text-sm text-center font-light">
+                            Agree
+                        </button>
+                        <button class="glass-button selected rounded-xl px-3 py-2.5 text-xs sm:text-sm text-center font-light">
+                            Strongly Agree
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Sample Question 3 -->
+                <div class="question-card rounded-2xl p-5">
+                    <p class="font-light text-white/90 text-sm mb-4 px-3">
+                        3. If the ultimate goal is to improve public health, it can justify bending some regulatory rules.
+                    </p>
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                        <button class="glass-button rounded-xl px-3 py-2.5 text-xs sm:text-sm text-center font-light">
+                            Strongly Disagree
+                        </button>
+                        <button class="glass-button rounded-xl px-3 py-2.5 text-xs sm:text-sm text-center font-light">
+                            Disagree
+                        </button>
+                        <button class="glass-button rounded-xl px-3 py-2.5 text-xs sm:text-sm text-center font-light">
+                            Neutral
+                        </button>
+                        <button class="glass-button rounded-xl px-3 py-2.5 text-xs sm:text-sm text-center font-light">
+                            Agree
+                        </button>
+                        <button class="glass-button rounded-xl px-3 py-2.5 text-xs sm:text-sm text-center font-light">
+                            Strongly Agree
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="text-center text-black/40 text-sm font-light py-4">
+                    ... 21 more questions ...
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Panel - Sticky -->
+        <div class="lg:sticky lg:top-24 self-start h-fit">
+            <!-- Chart Card -->
+            <div class="mb-6">
+                <h2 class="text-xl font-light mb-4">Live Matrix</h2>
+                <div class="chart-box rounded-2xl p-6">
+                
+                <div class="w-full h-80 flex items-center justify-center">
+                    <svg viewBox="0 0 400 300" class="w-full h-full">
+                        <!-- Grid -->
+                        <line x1="0" y1="150" x2="400" y2="150" stroke="rgba(0,0,0,0.1)" stroke-dasharray="3,3"/>
+                        <line x1="200" y1="0" x2="200" y2="300" stroke="rgba(0,0,0,0.1)" stroke-dasharray="3,3"/>
+                        
+                        <!-- Axes -->
+                        <line x1="50" y1="250" x2="350" y2="250" stroke="rgba(0,0,0,0.5)" stroke-width="1"/>
+                        <line x1="50" y1="50" x2="50" y2="250" stroke="rgba(0,0,0,0.5)" stroke-width="1"/>
+                        
+                        <!-- Labels -->
+                        <text x="200" y="280" fill="rgba(0,0,0,0.6)" text-anchor="middle" font-size="11">
+                            Universalism ← → Utilitarianism
+                        </text>
+                        <text x="30" y="150" fill="rgba(0,0,0,0.6)" text-anchor="middle" font-size="11" transform="rotate(-90 30 150)">
+                            Harmful ← → Non-harmful
+                        </text>
+                        
+                        <!-- Data Point -->
+                        <circle cx="250" cy="120" r="10" fill="black" opacity="0.9">
+                            <animate attributeName="r" values="10;12;10" dur="2s" repeatCount="indefinite"/>
+                        </circle>
+                    </svg>
+                </div>
+                
+                <div class="mt-4 flex flex-wrap items-center gap-3 text-sm">
+                    <div class="rounded-xl border border-black/20 bg-black/5 px-4 py-2 font-light">
+                        X: <span class="font-normal">0.350</span>
+                    </div>
+                    <div class="rounded-xl border border-black/20 bg-black/5 px-4 py-2 font-light">
+                        Y: <span class="font-normal">0.420</span>
+                    </div>
+                </div>
+            </div>
+            
+            </div>
+            </div>
+            
+            <!-- Insights Card -->
+            <div>
+                <h2 class="text-xl font-light mb-4">Insights</h2>
+                <div class="chart-box rounded-2xl p-6">
+                
+                <div class="space-y-3 text-sm font-light">
+                    <p class="leading-relaxed">
+                        <span class="font-normal">Ethical Framework:</span>
+                        <span class="text-black/70"> Utilitarian orientation</span>
+                    </p>
+                    <p class="leading-relaxed">
+                        <span class="font-normal">Harm Orientation:</span>
+                        <span class="text-black/70"> Harm-minimizing approach</span>
+                    </p>
+                </div>
+                
+                <p class="text-xs text-black/50 italic font-light mt-4">
+                    Complete all 24 questions for the most accurate assessment.
+                </p>
+                
+                <div class="pt-4 flex flex-wrap gap-2">
+                    <button class="glass-button rounded-xl px-4 py-2 text-sm font-light flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                        </svg>
+                        JSON
+                    </button>
+                    <button class="glass-button rounded-xl px-4 py-2 text-sm font-light flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        </svg>
+                        CSV
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer class="max-w-7xl mx-auto px-6 py-8 text-center text-xs text-black/40 font-light">
+        Ethics Matrix Dashboard · All data stored locally
+    </footer>
+</body>
+</html>

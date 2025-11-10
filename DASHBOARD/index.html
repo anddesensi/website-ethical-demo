@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Interactive ethics assessment tool with 24 questions mapping your ethical orientation across Universalism-Utilitarianism and Harmful-Nonharmful dimensions.">
+    <title>Ethics Matrix Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+        
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        .glass-button {
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .glass-button:hover {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: rgba(0, 0, 0, 0.4);
+        }
+        
+        .glass-button.selected {
+            background: black;
+            color: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .question-card {
+            background: rgba(0, 0, 0, 0.01);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .question-card:hover {
+            background: rgba(0, 0, 0, 0.02);
+        }
+        
+        .chart-box {
+            background: rgba(0, 0, 0, 0.01);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-white text-black min-h-screen">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-black/10">
+        <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+            <h1 class="text-3xl font-light tracking-tight">Ethics Matrix</h1>
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="guidesToggle" class="sr-only peer" checked>
+                        <div class="w-11 h-6 bg-black/5 peer-focus:outline-none rounded-full peer border border-black/20 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-black after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black/10"></div>
+                    </label>
+                    <span class="text-sm font-light">Guides</span>
+                </div>
+                <button onclick="resetAll()" class="glass-button rounded-xl px-4 py-2 text-sm font-light">
+                    Reset
+                </button>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 py-10 grid gap-12 lg:grid-cols-[1fr_450px]">
+        <!-- Questions Panel -->
+        <div>
+            <div class="mb-8">
+                <h2 class="text-xl font-light mb-2">Assessment</h2>
+                <p class="text-sm text-black/60"><span id="progress">0/24</span> answered · <span id="percentage">0</span>%</p>
+            </div>
+            
+            <div class="space-y-6" id="questionsContainer"></div>
+        </div>
+        
+        <!-- Right Panel - Sticky -->
+        <div class="lg:sticky lg:top-24 self-start h-fit">
+            <!-- Chart Card -->
+            <div class="mb-6">
+                <h2 class="text-xl font-light mb-4">Live Matrix</h2>
+                <div class="chart-box rounded-2xl p-6">
+                    <svg id="chart" viewBox="0 0 400 300" class="w-full h-80">
+                        <!-- Grid -->
+                        <line x1="0" y1="150" x2="400" y2="150" stroke="rgba(0,0,0,0.1)" stroke-dasharray="3,3" id="gridH"/>
+                        <line x1="200" y1="0" x2="200" y2="300" stroke="rgba(0,0,0,0.1)" stroke-dasharray="3,3" id="gridV"/>
+                        
+                        <!-- Axes -->
+                        <line x1="50" y1="250" x2="350" y2="250" stroke="rgba(0,0,0,0.5)" stroke-width="1"/>
+                        <line x1="50" y1="50" x2="50" y2="250" stroke="rgba(0,0,0,0.5)" stroke-width="1"/>
+                        
+                        <!-- Labels -->
+                        <text x="200" y="280" fill="rgba(0,0,0,0.6)" text-anchor="middle" font-size="11">
+                            Universalism ← → Utilitarianism
+                        </text>
+                        <text x="30" y="150" fill="rgba(0,0,0,0.6)" text-anchor="middle" font-size="11" transform="rotate(-90 30 150)">
+                            Harmful ← → Non-harmful
+                        </text>
+                        
+                        <!-- Data Point -->
+                        <circle id="dataPoint" cx="200" cy="150" r="10" fill="black" opacity="0.9">
+                            <animate attributeName="r" values="10;12;10" dur="2s" repeatCount="indefinite"/>
+                        </circle>
+                    </svg>
+                    
+                    <div class="mt-4 flex flex-wrap items-center gap-3 text-sm">
+                        <div class="rounded-xl border border-black/20 bg-black/5 px-4 py-2 font-light">
+                            X: <span class="font-normal" id="scoreX">0.000</span>
+                        </div>
+                        <div class="rounded-xl border border-black/20 bg-black/5 px-4 py-2 font-light">
+                            Y: <span class="font-normal" id="scoreY">0.000</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Insights Card -->
+            <div>
+                <h2 class="text-xl font-light mb-4">Insights</h2>
+                <div class="chart-box rounded-2xl p-6">
+                    <div class="space-y-3 text-sm font-light">
+                        <p class="leading-relaxed">
+                            <span class="font-normal">Ethical Framework:</span>
+                            <span class="text-black/70" id="frameworkText"> Balanced ethical framework</span>
+                        </p>
+                        <p class="leading-relaxed">
+                            <span class="font-normal">Harm Orientation:</span>
+                            <span class="text-black/70" id="harmText"> Neutral on harm tolerance</span>
+                        </p>
+                    </div>
+                    
+                    <p class="text-xs text-black/50 italic font-light mt-4" id="completeMessage">
+                        Complete all 24 questions for the most accurate assessment.
+                    </p>
+                    
+                    <div class="pt-4 flex flex-wrap gap-2">
+                        <button onclick="exportJSON()" class="glass-button rounded-xl px-4 py-2 text-sm font-light">
+                            Export JSON
+                        </button>
+                        <button onclick="exportCSV()" class="glass-button rounded-xl px-4 py-2 text-sm font-light">
+                            Export CSV
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer class="max-w-7xl mx-auto px-6 py-8 text-center text-xs text-black/40 font-light">
+        Ethics Matrix Dashboard · All data stored locally in your browser
+    </footer>
+
+    <script>
+        const questions = [
+            { id: 1, text: "It is acceptable to conceal information temporarily if doing so serves a greater humanitarian purpose.", x: 0.6, y: 0.4 },
+            { id: 2, text: "Scientific truth should never be compromised, even to accelerate innovation or attract investment.", x: -0.7, y: 0.6 },
+            { id: 3, text: "If the ultimate goal is to improve public health, it can justify bending some regulatory rules.", x: 0.7, y: 0.4 },
+            { id: 4, text: "Transparency and honesty toward patients are moral duties, regardless of business pressures.", x: -0.7, y: 0.7 },
+            { id: 5, text: "Results that could benefit millions justify taking calculated ethical risks in experimentation.", x: 0.7, y: -0.2 },
+            { id: 6, text: "Misleading investors or partners is always wrong, even if the deception is intended to ensure survival of a good cause.", x: -0.8, y: 0.6 },
+            { id: 7, text: "The value of an innovation should be judged by its potential impact on society, not by strict compliance with current laws.", x: 0.6, y: 0.2 },
+            { id: 8, text: "Rules of medical ethics exist to protect human dignity and must be respected in all circumstances.", x: -0.8, y: 0.7 },
+            { id: 9, text: "In highly competitive industries, moral flexibility is necessary to achieve progress.", x: 0.5, y: -0.2 },
+            { id: 10, text: "Respecting universal moral duties is more important than producing rapid technological breakthroughs.", x: -0.8, y: 0.5 },
+            { id: 11, text: "If an action saves or improves many lives, small-scale harms can be acceptable.", x: 0.7, y: -0.3 },
+            { id: 12, text: "Truthfulness in scientific communication is an absolute duty, even if full disclosure harms the company.", x: -0.7, y: 0.6 },
+            { id: 13, text: "It is legitimate to prioritize visionary goals over short-term accuracy when the innovation's promise is extraordinary.", x: 0.6, y: 0.1 },
+            { id: 14, text: "Patients' trust can be rebuilt even after temporary deception if long-term results are positive.", x: 0.5, y: 0.1 },
+            { id: 15, text: "Public confidence in science is more damaged by lies than by failures.", x: -0.4, y: 0.6 },
+            { id: 16, text: "Every patient has a right to informed consent that cannot be suspended for any strategic reason.", x: -0.9, y: 0.7 },
+            { id: 17, text: "If hiding temporary flaws avoids panic and protects the company's mission, it can be ethically justified.", x: 0.5, y: 0.1 },
+            { id: 18, text: "Deceiving stakeholders violates their autonomy and can never be morally justified.", x: -0.9, y: 0.7 },
+            { id: 19, text: "A morally good intention (e.g. democratizing healthcare) can outweigh dishonest methods used to reach it.", x: 0.6, y: -0.2 },
+            { id: 20, text: "Ethical principles must apply equally to powerful innovators and ordinary professionals.", x: -0.8, y: 0.6 },
+            { id: 21, text: "Concealing product flaws that could harm users is never justified, even if disclosure destroys the firm.", x: -0.9, y: 0.8 },
+            { id: 22, text: "Innovation inherently requires risk; occasional harm to some individuals is acceptable if the overall impact is positive.", x: 0.7, y: -0.4 },
+            { id: 23, text: "An organization that endangers lives to protect its image causes irreparable moral harm.", x: -0.9, y: 0.8 },
+            { id: 24, text: "In technology and health innovation, moral harm often begins when transparency becomes secondary to ambition.", x: -0.7, y: 0.6 }
+        ];
+
+        const likertOptions = [
+            { label: "Strongly Disagree", value: -2 },
+            { label: "Disagree", value: -1 },
+            { label: "Neutral", value: 0 },
+            { label: "Agree", value: 1 },
+            { label: "Strongly Agree", value: 2 }
+        ];
+
+        let answers = JSON.parse(localStorage.getItem('ethicsAnswers') || '{}');
+
+        function renderQuestions() {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = questions.map(q => `
+                <div class="question-card rounded-2xl p-5">
+                    <p class="font-light text-black/90 text-sm mb-3 px-3">
+                        ${q.id}. ${q.text}
+                    </p>
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                        ${likertOptions.map(opt => `
+                            <button 
+                                onclick="selectAnswer(${q.id}, ${opt.value})"
+                                id="q${q.id}_${opt.value}"
+                                class="glass-button ${answers[q.id] === opt.value ? 'selected' : ''} rounded-xl px-3 py-2.5 text-xs sm:text-sm text-center font-light">
+                                ${opt.label}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectAnswer(questionId, value) {
+            answers[questionId] = value;
+            localStorage.setItem('ethicsAnswers', JSON.stringify(answers));
+            
+            // Update button styles
+            likertOptions.forEach(opt => {
+                const btn = document.getElementById(`q${questionId}_${opt.value}`);
+                if (opt.value === value) {
+                    btn.classList.add('selected');
+                } else {
+                    btn.classList.remove('selected');
+                }
+            });
+            
+            updateDashboard();
+        }
+
+        function updateDashboard() {
+            const answered = Object.keys(answers).length;
+            const percentage = Math.round((answered / questions.length) * 100);
+            
+            document.getElementById('progress').textContent = `${answered}/24`;
+            document.getElementById('percentage').textContent = percentage;
+            
+            // Calculate scores
+            let sumX = 0, sumY = 0;
+            let totalWeightX = 0, totalWeightY = 0;
+            
+            questions.forEach(q => {
+                if (answers[q.id] !== undefined) {
+                    sumX += answers[q.id] * q.x;
+                    sumY += answers[q.id] * q.y;
+                    totalWeightX += Math.abs(q.x);
+                    totalWeightY += Math.abs(q.y);
+                }
+            });
+            
+            const scoreX = totalWeightX > 0 ? Math.max(-1, Math.min(1, sumX / (2 * totalWeightX))) : 0;
+            const scoreY = totalWeightY > 0 ? Math.max(-1, Math.min(1, sumY / (2 * totalWeightY))) : 0;
+            
+            document.getElementById('scoreX').textContent = scoreX.toFixed(3);
+            document.getElementById('scoreY').textContent = scoreY.toFixed(3);
+            
+            // Update chart position
+            const chartX = 200 + (scoreX * 150);
+            const chartY = 150 - (scoreY * 100);
+            document.getElementById('dataPoint').setAttribute('cx', chartX);
+            document.getElementById('dataPoint').setAttribute('cy', chartY);
+            
+            // Update insights
+            const frameworkText = scoreX > 0.3 ? "Utilitarian orientation" : 
+                                 scoreX < -0.3 ? "Universalist orientation" : 
+                                 "Balanced ethical framework";
+            const harmText = scoreY > 0.3 ? "Harm-minimizing approach" : 
+                            scoreY < -0.3 ? "Risk-accepting approach" : 
+                            "Neutral on harm tolerance";
+            
+            document.getElementById('frameworkText').textContent = " " + frameworkText;
+            document.getElementById('harmText').textContent = " " + harmText;
+            
+            if (answered === questions.length) {
+                document.getElementById('completeMessage').textContent = "Assessment complete! You can now export your results.";
+            }
+        }
+
+        function resetAll() {
+            if (confirm('Reset all answers?')) {
+                answers = {};
+                localStorage.removeItem('ethicsAnswers');
+                renderQuestions();
+                updateDashboard();
+            }
+        }
+
+        function exportJSON() {
+            const data = {
+                timestamp: new Date().toISOString(),
+                answers: answers,
+                scores: {
+                    x: parseFloat(document.getElementById('scoreX').textContent),
+                    y: parseFloat(document.getElementById('scoreY').textContent)
+                },
+                interpretation: {
+                    framework: document.getElementById('frameworkText').textContent.trim(),
+                    harmOrientation: document.getElementById('harmText').textContent.trim()
+                }
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'ethics-matrix-results.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function exportCSV() {
+            let csv = 'question_id,question_text,answer,timestamp\n';
+            const ts = new Date().toISOString();
+            questions.forEach(q => {
+                const ans = answers[q.id] !== undefined ? answers[q.id] : '';
+                csv += `"${q.id}","${q.text.replace(/"/g, '""')}","${ans}","${ts}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'ethics-matrix-results.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Toggle guides
+        document.getElementById('guidesToggle').addEventListener('change', function() {
+            const guides = document.querySelectorAll('#gridH, #gridV');
+            guides.forEach(g => {
+                g.style.display = this.checked ? 'block' : 'none';
+            });
+        });
+
+        // Initialize
+        renderQuestions();
+        updateDashboard();
+    </script>
+</body>
+</html>
